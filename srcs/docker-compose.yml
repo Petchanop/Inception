@@ -1,0 +1,60 @@
+version: "2.2"
+
+services:
+  wordpress:
+    container_name: wordpress
+    build:
+      context: ./requirements/wordpress
+    ports:
+      - 9000:9000
+    volumes:
+      - wordpress:/var/www/html/
+    networks:
+      - 42wordpress
+    depends_on:
+      - mariadb
+    restart: unless-stopped
+
+  mariadb:
+    container_name: mariadb
+    build:
+      context: ./requirements/mariadb
+    ports:
+      - 3306:3306
+    volumes:
+      - database:/var/lib/mysql
+    networks:
+      - 42wordpress
+    restart: always
+
+  nginx:
+    container_name: nginx
+    build:
+      context: ./requirements/nginx
+    ports:
+      - 4403:443
+    volumes:
+      - wordpress:/var/www/html/
+    networks:
+      - 42wordpress
+    depends_on:
+      - wordpress
+    restart: always
+
+networks:
+  42wordpress:
+    driver: bridge
+
+volumes:
+  wordpress:
+    driver: local
+    driver_opts:
+      type: none
+      o: "bind"
+      device: ~/data/wordpress
+  database:
+    driver: local
+    driver_opts:
+      type: none
+      o: "bind"
+      device: ~/data/database
