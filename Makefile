@@ -6,7 +6,7 @@
 #    By: npiya-is <marvin@42.fr>                    +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2023/09/14 00:02:27 by npiya-is          #+#    #+#              #
-#    Updated: 2023/09/30 00:31:51 by npiya-is         ###   ########.fr        #
+#    Updated: 2023/10/01 22:21:21 by npiya-is         ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -22,21 +22,25 @@ $(NAME):
 	mkdir -p $(HOME)/data/wordpress
 	mkdir -p $(HOME)/data/database
 
-up:all
-	docker-compose -f srcs/docker-compose.yml up -d
+up:$(NAME)
+	docker-compose --env-file ./srcs/.env -f srcs/docker-compose.yml up --build -d
 
 down:
+	docker-compose -f srcs/docker-compose.yml stop
 	docker-compose -f srcs/docker-compose.yml down --volumes
 
 clean:down
-	docker image prune -a
+	docker network prune -f
 
 fclean:clean
-	rm -rf $(HOME)/data/
-	rm -rf $(HOME)/data/wordpress
-	rm -rf $(HOME)/data/database
+	sudo rm -rf $(HOME)/data/*
+	sudo rm -rf $(HOME)/data
+	docker image prune -a
+	# docker rm $$(docker ps -qa)
+	# docker rmi -f $$(docker images -qa)
+	# docker volume rm $$(docker volume ls -q)
 
-re:fclean
-	docker-compose -f srcs/docker-compose.yml up --force-recreate --build -d
+re:fclean all
+	docker-compose --env-file ./srcs/.env -f srcs/docker-compose.yml up --force-recreate --build -d
 
 .PHONY: all up down clean fclean re
