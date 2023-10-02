@@ -1,12 +1,12 @@
 #!bin/bash
 /etc/init.d/mariadb start
 
-if [ -d "/var/lib/mysql/$MYSQL_DATABASE" ]
-then 
+echo "test Enviroment variable"
+echo "user : $MYSQL_USER"
+echo "dabtabase : $MYSQL_DATABASE"
+echo "password : $MYSQL_PASSWORD"
+echo "----------------------------"
 
-	echo "Database already exists"
-
-else
 mysql_secure_installation << EOF
 y
 $MYSQL_ROOT_PASSWORD
@@ -21,8 +21,6 @@ EOF
 mysql -u root -p$MYSQL_ROOT_PASSWORD << EOF
 CREATE DATABASE IF NOT EXISTS $MYSQL_DATABASE;
 CREATE USER IF NOT EXISTS '$MYSQL_USER'@'%' IDENTIFIED BY '';
-GRANT ALL ON *.* TO '$MYSQL_USER'@'%' IDENTIFIED BY '$MYSQL_PASSWORD' WITH GRANT OPTION;
+GRANT ALL ON $MYSQL_DATABASE.* TO '$MYSQL_USER'@'%' IDENTIFIED BY '$MYSQL_PASSWORD' WITH GRANT OPTION;
 FLUSH PRIVILEGES;
 EOF
-
-fi
